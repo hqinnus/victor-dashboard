@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Victor's Intelligence | Personal Dashboard</title>
+    <style>
+        :root {
+            --bg: #0f0f11;
+            --card: #18181b;
+            --card-hover: #1f1f23;
+            --border: #27272a;
+            --text: #fafafa;
+            --text-muted: #a1a1aa;
+            --accent: #3b82f6;
+            --accent-soft: #1d4ed8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* Header */
+        header {
+            margin-bottom: 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .brand h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        
+        .brand .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+        
+        .meta {
+            text-align: right;
+        }
+        
+        .meta .time {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        .meta .date {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+        
+        .nav-tab {
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            border: none;
+            background: transparent;
+        }
+        
+        .nav-tab:hover {
+            color: var(--text);
+            background: var(--card);
+        }
+        
+        .nav-tab.active {
+            color: var(--text);
+            background: var(--card);
+            font-weight: 500;
+        }
+        
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 640px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .meta { text-align: left; width: 100%; }
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.2s ease;
+        }
+        
+        .card:hover {
+            background: var(--card-hover);
+            border-color: #3f3f46;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .card-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: var(--accent-soft);
+            color: white;
+        }
+        
+        .card-badge.new { background: var(--success); }
+        
+        /* Module: AI Brief */
+        .ai-brief .news-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .ai-brief .news-item:last-child {
+            border-bottom: none;
+        }
+        
+        .news-title {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+        
+        .news-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .news-tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+        
+        /* Module: Portfolio */
+        .portfolio-overview .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .portfolio-overview .metric:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .metric-value {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .metric-value.positive { color: var(--success); }
+        .metric-value.negative { color: var(--danger); }
+        
+        .allocation-bar {
+            display: flex;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 16px;
+        }
+        
+        .allocation-segment {
+            transition: width 0.3s ease;
+        }
+        
+        /* Module: Reading */
+        .reading-list .article {
+            padding: 16px;
+            margin-bottom: 12px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .reading-list .article:hover {
+            background: rgba(255,255,255,0.04);
+        }
+        
+        .article-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        
+        .article-source {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        /* Module: Quick Note */
+        .quick-note textarea {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .quick-note textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .btn {
+            margin-top: 12px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            background: var(--accent);
+            color: white;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        
+        .btn:hover { opacity: 0.9; }
+        
+        /* Module: Calendar/Tasks */
+        .upcoming-item {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .upcoming-item:last-child { border-bottom: none; }
+        
+        .upcoming-date {
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .upcoming-date .day {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .upcoming-date .month {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        
+        .upcoming-content {
+            flex: 1;
+        }
+        
+        .upcoming-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .upcoming-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        /* Footer */
+        footer {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: color 0.2s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--text);
+        }
+        
+        .refresh-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .refresh-btn:hover {
+            color: var(--text);
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="brand">
+                <h1>Victor's Intelligence</h1>
+                <div class="subtitle">Personal Dashboard · Seattle · GMT-8</div>
+            </div>
+            <div class="meta">
+                <div class="time" id="clock">07:42</div>
+                <div class="date" id="date">Wednesday, January 15</div>
+            </div>
+        </header>
+        
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('today')">Today</button>
+            <button class="nav-tab" onclick="switchTab('investment')">Investment</button>
+            <button class="nav-tab" onclick="switchTab('reading')">Reading</button>
+            <button class="nav-tab" onclick="switchTab('notes')">Notes</button>
+        </nav>
+        
+        <div class="dashboard-grid">
+            <!-- AI Brief Module -->
+            <div class="card ai-brief" style="grid-row: span 2;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>🤖</span>
+                        AI Brief
+                    </div>
+                    <span class="card-badge">3 new</span>
+                </div>
+                
+                <div class="news-item">
+                    <div class="news-title">OpenAI releases o3-mini reasoning model</div>
+                    <div class="news-meta">
+                        <span>MIT Tech Review</span>
+                        <span>2h ago</span>
+                        <span class="news-tag">Model</span>
+                    </div>
+                </div>
+                
+                <div class="news-item">
+                    <div class="news-title">Google DeepMind's AlphaProof advances in math olympiad</div>
+                    <div class="news-meta">
+                        <span>Nature</span>
+                        <span>5h ago</span>
+                        <span class="news-tag">Research</span>
+                    </div>
+                </div>
+                
+                <div class="news-item">
+                    <div class="news-title">NVIDIA announces new AI chip for robotics</div>
+                    <div class="news-meta">
+                        <span>The Information</span>
+                        <span>8h ago</span>
+                        <span class="news-tag">Hardware</span>
+                    </div>
+                </div>
+                
+                <div class="news-item">
+                    <div class="news-title">Claude adds Projects feature for enterprise</div>
+                    <div class="news-meta">
+                        <span>Anthropic Blog</span>
+                        <span>12h ago</span>
+                        <span class="news-tag">Product</span>
+                    </div>
+                </div>
+                
+                <div class="news-item">
+                    <div class="news-title">Regulators propose new AI safety framework</div>
+                    <div class="news-meta">
+                        <span>Reuters</span>
+                        <span>1d ago</span>
+                        <span class="news-tag">Policy</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Portfolio Overview -->
+            <div class="card portfolio-overview">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>📈</span>
+                        Portfolio
+                    </div>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">VT (Global)</span>
+                    <span class="metric-value positive">+1.2%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">BND (Bonds)</span>
+                    <span class="metric-value negative">-0.3%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">QQQ (Tech)</span>
+                    <span class="metric-value positive">+2.1%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">GLD (Gold)</span>
+                    <span class="metric-value positive">+0.5%</span>
+                </div>
+                
+                <div class="allocation-bar">
+                    <div class="allocation-segment" style="width: 40%; background: #3b82f6;"></div>
+                    <div class="allocation-segment" style="width: 30%; background: #22c55e;"></div>
+                    <div class="allocation-segment" style="width: 15%; background: #f59e0b;"></div>
+                    <div class="allocation-segment" style="width: 10%; background: #a855f7;"></div>
+                    <div class="allocation-segment" style="width: 5%; background: #64748b;"></div>
+                </div>
+            </div>
+            
+            <!-- Upcoming -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>📅</span>
+                        Upcoming
+                    </div>
+                </div>
+                
+                <div class="upcoming-item">
+                    <div class="upcoming-date">
+                        <div class="day">28</div>
+                        <div class="month">Feb</div>
+                    </div>
+                    <div class="upcoming-content">
+                        <div class="upcoming-title">RSU Vesting</div>
+                        <div class="upcoming-desc">Q1归属到期，准备套现</div>
+                    </div>
+                </div>
+                
+                <div class="upcoming-item">
+                    <div class="upcoming-date">
+                        <div class="day">15</div>
+                        <div class="month">Apr</div>
+                    </div>
+                    <div class="upcoming-content">
+                        <div class="upcoming-title">Tax Deadline</div>
+                        <div class="upcoming-desc">IRA contribution deadline</div>
+                    </div>
+                </div>
+                
+                <div class="upcoming-item">
+                    <div class="upcoming-date">
+                        <div class="day">—</div>
+                        <div class="month">TBD</div>
+                    </div>
+                    <div class="upcoming-content">
+                        <div class="upcoming-title">Portfolio Review</div>
+                        <div class="upcoming-desc">半年度再平衡检查</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reading List -->
+            <div class="card reading-list" style="grid-column: span 2;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>📚</span>
+                        This Week's Read
+                    </div>
+                </div>
+                
+                <div class="article">
+                    <div class="article-title">The Psychology of Money - Morgan Housel</div>
+                    <div class="article-source">Book · Chapter 5: Getting Wealthy vs. Staying Wealthy</div>
+                </div>
+                
+                <div class="article">
+                    <div class="article-title">AI Agents Will Reshape Software, Not Just Automate It</div>
+                    <div class="article-source">Ben Thompson · Stratechery</div>
+                </div>
+            </div>
+            
+            <!-- Quick Note -->
+            <div class="card quick-note">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>📝</span>
+                        Quick Note
+                    </div>
+                </div>
+                <textarea placeholder="What's on your mind? I'll organize it..."></textarea>
+                <button class="btn">Save Note</button>
+            </div>
+        </div>
+        
+        <footer>
+            <div class="footer-links">
+                <a href="#">Strategy Doc</a>
+                <a href="#">Action Plan</a>
+                <a href="#">Settings</a>
+            </div>
+            <button class="refresh-btn" onclick="refresh()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                </svg>
+                Refresh
+            </button>
+        </footer>
+    </div>
+    
+    <script>
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                timeZone: 'America/Los_Angeles'
+            });
+            const date = now.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                month: 'long', 
+                day: 'numeric',
+                timeZone: 'America/Los_Angeles'
+            });
+            document.getElementById('clock').textContent = time;
+            document.getElementById('date').textContent = date;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+        
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            // In real version, this would show/hide different content sections
+        }
+        
+        // Refresh
+        function refresh() {
+            const btn = document.querySelector('.refresh-btn');
+            btn.style.opacity = '0.5';
+            setTimeout(() => {
+                btn.style.opacity = '1';
+                // In real version, this would fetch new data
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
