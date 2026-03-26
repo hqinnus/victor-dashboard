@@ -103,6 +103,15 @@
             font-weight: 500;
         }
         
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
         /* Grid Layout */
         .dashboard-grid {
             display: grid;
@@ -176,6 +185,11 @@
             font-weight: 500;
             margin-bottom: 6px;
             color: var(--text);
+            cursor: pointer;
+        }
+        
+        .news-title:hover {
+            color: var(--accent);
         }
         
         .news-meta {
@@ -240,6 +254,9 @@
             border-left: 3px solid var(--accent);
             cursor: pointer;
             transition: all 0.2s;
+            text-decoration: none;
+            display: block;
+            color: inherit;
         }
         
         .reading-list .article:hover {
@@ -289,6 +306,11 @@
         }
         
         .btn:hover { opacity: 0.9; }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
         
         /* Module: Calendar/Tasks */
         .upcoming-item {
@@ -376,6 +398,122 @@
             color: var(--text);
             border-color: var(--accent);
         }
+        
+        .refresh-btn.spinning svg {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+        
+        .error {
+            color: var(--danger);
+            padding: 20px;
+            text-align: center;
+        }
+        
+        /* Notes List */
+        .notes-list {
+            margin-top: 20px;
+        }
+        
+        .note-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .note-content {
+            flex: 1;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
+        .note-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+        
+        .note-delete {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            padding: 4px 8px;
+            opacity: 0.6;
+        }
+        
+        .note-delete:hover {
+            opacity: 1;
+        }
+        
+        /* Investment Page */
+        .investment-strategy {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .strategy-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .strategy-card h2 {
+            color: var(--text);
+            margin-bottom: 16px;
+            font-size: 1.2rem;
+        }
+        
+        .strategy-card p, .strategy-card li {
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .strategy-card ul {
+            padding-left: 24px;
+        }
+        
+        /* Reading Page */
+        .reading-categories {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .category-btn {
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        
+        .category-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
     </style>
 </head>
 <body>
@@ -392,187 +530,209 @@
         </header>
         
         <nav class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('today')">Today</button>
-            <button class="nav-tab" onclick="switchTab('investment')">Investment</button>
-            <button class="nav-tab" onclick="switchTab('reading')">Reading</button>
-            <button class="nav-tab" onclick="switchTab('notes')">Notes</button>
+            <button class="nav-tab active" data-tab="today">Today</button>
+            <button class="nav-tab" data-tab="investment">Investment</button>
+            <button class="nav-tab" data-tab="reading">Reading</button>
+            <button class="nav-tab" data-tab="notes">Notes</button>
         </nav>
         
-        <div class="dashboard-grid">
-            <!-- AI Brief Module -->
-            <div class="card ai-brief" style="grid-row: span 2;">
-                <div class="card-header">
-                    <div class="card-title">
-                        <span>🤖</span>
-                        AI Brief
+        <!-- Today Tab -->
+        <div id="today" class="tab-content active">
+            <div class="dashboard-grid">
+                <!-- AI Brief Module -->
+                <div class="card ai-brief" style="grid-row: span 2;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>🤖</span>
+                            AI Brief
+                        </div>
+                        <span class="card-badge" id="news-badge">Loading...</span>
                     </div>
-                    <span class="card-badge">3 new</span>
-                </div>
-                
-                <div class="news-item">
-                    <div class="news-title">OpenAI releases o3-mini reasoning model</div>
-                    <div class="news-meta">
-                        <span>MIT Tech Review</span>
-                        <span>2h ago</span>
-                        <span class="news-tag">Model</span>
+                    <div id="ai-news-container">
+                        <div class="loading">Loading AI news...</div>
                     </div>
                 </div>
                 
-                <div class="news-item">
-                    <div class="news-title">Google DeepMind's AlphaProof advances in math olympiad</div>
-                    <div class="news-meta">
-                        <span>Nature</span>
-                        <span>5h ago</span>
-                        <span class="news-tag">Research</span>
+                <!-- Portfolio Overview -->
+                <div class="card portfolio-overview">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>📈</span>
+                            Portfolio
+                        </div>
+                    </div>
+                    <div id="portfolio-container">
+                        <div class="loading">Loading prices...</div>
                     </div>
                 </div>
                 
-                <div class="news-item">
-                    <div class="news-title">NVIDIA announces new AI chip for robotics</div>
-                    <div class="news-meta">
-                        <span>The Information</span>
-                        <span>8h ago</span>
-                        <span class="news-tag">Hardware</span>
+                <!-- Upcoming -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>📅</span>
+                            Upcoming
+                        </div>
+                    </div>
+                    
+                    <div class="upcoming-item">
+                        <div class="upcoming-date">
+                            <div class="day">28</div>
+                            <div class="month">Feb</div>
+                        </div>
+                        <div class="upcoming-content">
+                            <div class="upcoming-title">RSU Vesting</div>
+                            <div class="upcoming-desc">Q1归属到期，准备套现</div>
+                        </div>
+                    </div>
+                    
+                    <div class="upcoming-item">
+                        <div class="upcoming-date">
+                            <div class="day">15</div>
+                            <div class="month">Apr</div>
+                        </div>
+                        <div class="upcoming-content">
+                            <div class="upcoming-title">Tax Deadline</div>
+                            <div class="upcoming-desc">IRA contribution deadline</div>
+                        </div>
+                    </div>
+                    
+                    <div class="upcoming-item">
+                        <div class="upcoming-date">
+                            <div class="day">—</div>
+                            <div class="month">TBD</div>
+                        </div>
+                        <div class="upcoming-content">
+                            <div class="upcoming-title">Portfolio Review</div>
+                            <div class="upcoming-desc">半年度再平衡检查</div>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="news-item">
-                    <div class="news-title">Claude adds Projects feature for enterprise</div>
-                    <div class="news-meta">
-                        <span>Anthropic Blog</span>
-                        <span>12h ago</span>
-                        <span class="news-tag">Product</span>
+                <!-- Reading List -->
+                <div class="card reading-list" style="grid-column: span 2;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>📚</span>
+                            This Week's Read
+                        </div>
                     </div>
+                    
+                    <a href="https://www.amazon.com/Psychology-Money-Timeless-lessons-happiness/dp/0857197681" target="_blank" class="article">
+                        <div class="article-title">The Psychology of Money - Morgan Housel</div>
+                        <div class="article-source">Book · Chapter 5: Getting Wealthy vs. Staying Wealthy</div>
+                    </a>
+                    
+                    <a href="https://stratechery.com/2025/ai-agents-will-reshape-software/" target="_blank" class="article">
+                        <div class="article-title">AI Agents Will Reshape Software, Not Just Automate It</div>
+                        <div class="article-source">Ben Thompson · Stratechery</div>
+                    </a>
                 </div>
                 
-                <div class="news-item">
-                    <div class="news-title">Regulators propose new AI safety framework</div>
-                    <div class="news-meta">
-                        <span>Reuters</span>
-                        <span>1d ago</span>
-                        <span class="news-tag">Policy</span>
+                <!-- Quick Note -->
+                <div class="card quick-note">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>📝</span>
+                            Quick Note
+                        </div>
                     </div>
+                    <textarea id="quick-note-input" placeholder="What's on your mind? I'll organize it..."></textarea>
+                    <button class="btn" onclick="saveQuickNote()">Save Note</button>
                 </div>
-            </div>
-            
-            <!-- Portfolio Overview -->
-            <div class="card portfolio-overview">
-                <div class="card-header">
-                    <div class="card-title">
-                        <span>📈</span>
-                        Portfolio
-                    </div>
-                </div>
-                
-                <div class="metric">
-                    <span class="metric-label">VT (Global)</span>
-                    <span class="metric-value positive">+1.2%</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">BND (Bonds)</span>
-                    <span class="metric-value negative">-0.3%</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">QQQ (Tech)</span>
-                    <span class="metric-value positive">+2.1%</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">GLD (Gold)</span>
-                    <span class="metric-value positive">+0.5%</span>
-                </div>
-                
-                <div class="allocation-bar">
-                    <div class="allocation-segment" style="width: 40%; background: #3b82f6;"></div>
-                    <div class="allocation-segment" style="width: 30%; background: #22c55e;"></div>
-                    <div class="allocation-segment" style="width: 15%; background: #f59e0b;"></div>
-                    <div class="allocation-segment" style="width: 10%; background: #a855f7;"></div>
-                    <div class="allocation-segment" style="width: 5%; background: #64748b;"></div>
-                </div>
-            </div>
-            
-            <!-- Upcoming -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <span>📅</span>
-                        Upcoming
-                    </div>
-                </div>
-                
-                <div class="upcoming-item">
-                    <div class="upcoming-date">
-                        <div class="day">28</div>
-                        <div class="month">Feb</div>
-                    </div>
-                    <div class="upcoming-content">
-                        <div class="upcoming-title">RSU Vesting</div>
-                        <div class="upcoming-desc">Q1归属到期，准备套现</div>
-                    </div>
-                </div>
-                
-                <div class="upcoming-item">
-                    <div class="upcoming-date">
-                        <div class="day">15</div>
-                        <div class="month">Apr</div>
-                    </div>
-                    <div class="upcoming-content">
-                        <div class="upcoming-title">Tax Deadline</div>
-                        <div class="upcoming-desc">IRA contribution deadline</div>
-                    </div>
-                </div>
-                
-                <div class="upcoming-item">
-                    <div class="upcoming-date">
-                        <div class="day">—</div>
-                        <div class="month">TBD</div>
-                    </div>
-                    <div class="upcoming-content">
-                        <div class="upcoming-title">Portfolio Review</div>
-                        <div class="upcoming-desc">半年度再平衡检查</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Reading List -->
-            <div class="card reading-list" style="grid-column: span 2;">
-                <div class="card-header">
-                    <div class="card-title">
-                        <span>📚</span>
-                        This Week's Read
-                    </div>
-                </div>
-                
-                <div class="article">
-                    <div class="article-title">The Psychology of Money - Morgan Housel</div>
-                    <div class="article-source">Book · Chapter 5: Getting Wealthy vs. Staying Wealthy</div>
-                </div>
-                
-                <div class="article">
-                    <div class="article-title">AI Agents Will Reshape Software, Not Just Automate It</div>
-                    <div class="article-source">Ben Thompson · Stratechery</div>
-                </div>
-            </div>
-            
-            <!-- Quick Note -->
-            <div class="card quick-note">
-                <div class="card-header">
-                    <div class="card-title">
-                        <span>📝</span>
-                        Quick Note
-                    </div>
-                </div>
-                <textarea placeholder="What's on your mind? I'll organize it..."></textarea>
-                <button class="btn">Save Note</button>
             </div>
         </div>
         
+        <!-- Investment Tab -->
+        <div id="investment" class="tab-content">
+            <div class="investment-strategy">
+                <div class="strategy-card">
+                    <h2>🎯 Investment Strategy Overview</h2>
+                    <p>Your current allocation strategy based on All-Weather Portfolio principles:</p>
+                    
+                    <div class="allocation-bar" style="margin: 20px 0; height: 40px;">
+                        <div class="allocation-segment" style="width: 40%; background: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">Stocks 40%</div>
+                        <div class="allocation-segment" style="width: 30%; background: #22c55e; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">Bonds 30%</div>
+                        <div class="allocation-segment" style="width: 15%; background: #f59e0b; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">Gold 15%</div>
+                        <div class="allocation-segment" style="width: 10%; background: #a855f7; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">REITs 10%</div>
+                        <div class="allocation-segment" style="width: 5%; background: #64748b; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">Cash 5%</div>
+                    </div>
+                </div>
+                
+                <div class="strategy-card">
+                    <h2>📊 Current Holdings</h2>
+                    <div id="holdings-table">
+                        <div class="loading">Loading holdings data...</div>
+                    </div>
+                </div>
+                
+                <div class="strategy-card">
+                    <h2>🚀 Next Actions</h2>
+                    <ul>
+                        <li>☐ Review RSU vesting schedule (Feb 28)</li>
+                        <li>☐ Check emergency fund status (target: 6-12 months)</li>
+                        <li>☐ Complete Backdoor Roth IRA for 2024 (before Apr 15)</li>
+                        <li>☐ Set up Fidelity/Schwab brokerage account</li>
+                        <li>☐ First ETF deployment after RSU vesting</li>
+                    </ul>
+                </div>
+                
+                <div class="strategy-card">
+                    <h2>📈 Performance Tracking</h2>
+                    <p>Track your portfolio performance here. Currently showing mock data - connect to actual broker API for real data.</p>
+                    
+                    <div id="performance-chart">
+                        <p style="color: var(--text-muted); padding: 20px; text-align: center;">Chart integration pending - add your broker connection</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <!-- Reading Tab -->
+        <div id="reading" class="tab-content">
+            <div class="reading-categories">
+                <button class="category-btn active" data-category="all">All</button>
+                <button class="category-btn" data-category="investment">Investment</button>
+                <button class="category-btn" data-category="ai">AI</button>
+                <button class="category-btn" data-category="management">Management</button>
+            </div>
+            
+            <div id="reading-list">
+                <!-- Articles will be loaded dynamically -->
+            </div>
+        </div>
+        
+        
+        <!-- Notes Tab -->
+        <div id="notes" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>📝</span>
+                        My Notes
+                    </div>
+                </div>
+                
+                <textarea id="new-note" placeholder="Write a new note..." style="width: 100%; min-height: 100px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text); resize: vertical;"></textarea>
+                
+                <button class="btn" onclick="addNote()">Add Note</button>
+            </div>
+            
+            
+            <div id="notes-container" class="notes-list">
+                <!-- Notes will be loaded from localStorage -->
+            </div>
+        </div>
+        
+        
         <footer>
             <div class="footer-links">
-                <a href="#">Strategy Doc</a>
-                <a href="#">Action Plan</a>
-                <a href="#">Settings</a>
+                <a href="https://github.com/hqinnus/victor-dashboard" target="_blank">Source</a>
+                <a href="#" onclick="exportData()">Export Data</a>
             </div>
-            <button class="refresh-btn" onclick="refresh()">
+            
+            <button class="refresh-btn" id="refresh-btn" onclick="refreshAll()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
                 </svg>
@@ -581,8 +741,40 @@
         </footer>
     </div>
     
+    
     <script>
-        // Clock
+        // ==================== Tab Switching ====================
+        function initTabs() {
+            const tabs = document.querySelectorAll('.nav-tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    contents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active to clicked tab
+                    tab.classList.add('active');
+                    
+                    // Show corresponding content
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // Load tab-specific data
+                    if (tabId === 'reading') loadReadingList();
+                    if (tabId === 'notes') renderNotes();
+                    if (tabId === 'today') {
+                        loadAINews();
+                        loadPortfolio();
+                    }
+                    if (tabId === 'investment') loadHoldings();
+                });
+            });
+        }
+        
+        
+        // ==================== Clock ====================
         function updateClock() {
             const now = new Date();
             const time = now.toLocaleTimeString('en-US', { 
@@ -599,25 +791,397 @@
             document.getElementById('clock').textContent = time;
             document.getElementById('date').textContent = date;
         }
-        updateClock();
-        setInterval(updateClock, 1000);
         
-        // Tab switching
-        function switchTab(tab) {
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            // In real version, this would show/hide different content sections
+        
+        // ==================== AI News ====================
+        const MOCK_AI_NEWS = [
+            {
+                title: "OpenAI releases o3-mini reasoning model",
+                source: "MIT Tech Review",
+                time: "2h ago",
+                tag: "Model",
+                url: "https://www.technologyreview.com"
+            },
+            {
+                title: "Google DeepMind's AlphaProof advances in math olympiad",
+                source: "Nature",
+                time: "5h ago",
+                tag: "Research",
+                url: "https://www.nature.com"
+            },
+            {
+                title: "NVIDIA announces new AI chip for robotics",
+                source: "The Information",
+                time: "8h ago",
+                tag: "Hardware",
+                url: "https://www.theinformation.com"
+            },
+            {
+                title: "Claude adds Projects feature for enterprise",
+                source: "Anthropic Blog",
+                time: "12h ago",
+                tag: "Product",
+                url: "https://www.anthropic.com"
+            },
+            {
+                title: "Regulators propose new AI safety framework",
+                source: "Reuters",
+                time: "1d ago",
+                tag: "Policy",
+                url: "https://www.reuters.com"
+            }
+        ];
+        
+        function loadAINews() {
+            const container = document.getElementById('ai-news-container');
+            const badge = document.getElementById('news-badge');
+            
+            // Simulate API call with delay
+            container.innerHTML = '<div class="loading">Loading AI news...</div>';
+            
+            setTimeout(() => {
+                container.innerHTML = MOCK_AI_NEWS.map(news => `
+                    <div class="news-item" onclick="window.open('${news.url}', '_blank')">
+                        <div class="news-title">${news.title}</div>
+                        <div class="news-meta">
+                            <span>${news.source}</span>
+                            <span>${news.time}</span>
+                            <span class="news-tag">${news.tag}</span>
+                        </div>
+                    </div>
+                `).join('');
+                
+                badge.textContent = `${MOCK_AI_NEWS.length} new`;
+                badge.classList.add('new');
+            }, 500);
         }
         
-        // Refresh
-        function refresh() {
-            const btn = document.querySelector('.refresh-btn');
-            btn.style.opacity = '0.5';
+        
+        // ==================== Portfolio ====================
+        const PORTFOLIO_DATA = [
+            { ticker: "VT", name: "Global", price: 108.42, change: 1.2, allocation: 30 },
+            { ticker: "BND", name: "Bonds", price: 72.15, change: -0.3, allocation: 20 },
+            { ticker: "QQQ", name: "Tech", price: 498.23, change: 2.1, allocation: 10 },
+            { ticker: "GLD", name: "Gold", price: 218.56, change: 0.5, allocation: 15 }
+        ];
+        
+        function loadPortfolio() {
+            const container = document.getElementById('portfolio-container');
+            
+            container.innerHTML = `
+                ${PORTFOLIO_DATA.map(holding => `
+                    <div class="metric">
+                        <span class="metric-label">${holding.ticker} (${holding.name})</span>
+                        <span class="metric-value ${holding.change >= 0 ? 'positive' : 'negative'}">
+                            ${holding.change >= 0 ? '+' : ''}${holding.change}%
+                        </span>
+                    </div>
+                `).join('')}
+                
+                <div class="allocation-bar">
+                    <div class="allocation-segment" style="width: 40%; background: #3b82f6;"></div>
+                    <div class="allocation-segment" style="width: 30%; background: #22c55e;"></div>
+                    <div class="allocation-segment" style="width: 15%; background: #f59e0b;"></div>
+                    <div class="allocation-segment" style="width: 10%; background: #a855f7;"></div>
+                    <div class="allocation-segment" style="width: 5%; background: #64748b;"></div>
+                </div>
+            `;
+        }
+        
+        
+        // ==================== Holdings Table ====================
+        function loadHoldings() {
+            const container = document.getElementById('holdings-table');
+            
             setTimeout(() => {
-                btn.style.opacity = '1';
-                // In real version, this would fetch new data
+                container.innerHTML = `
+                    <style>
+                        .holdings-table { width: 100%; border-collapse: collapse; }
+                        .holdings-table th, .holdings-table td { 
+                            padding: 12px; 
+                            text-align: left; 
+                            border-bottom: 1px solid var(--border);
+                        }
+                        .holdings-table th { color: var(--text-muted); font-weight: 500; }
+                    </style>
+                    <table class="holdings-table">
+                        <thead>
+                            <tr>
+                                <th>Ticker</th>
+                                <th>Name</th>
+                                <th>Target %</th>
+                                <th>Price</th>
+                                <th>Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>VT</td>
+                                <td>Vanguard Total World Stock</td>
+                                <td>30%</td>
+                                <td>$108.42</td>
+                                <td style="color: var(--success)">+1.2%</td>
+                            </tr>
+                            <tr>
+                                <td>VTI</td>
+                                <td>Vanguard Total Stock Market</td>
+                                <td>10%</td>
+                                <td>$295.18</td>
+                                <td style="color: var(--success)">+0.8%</td>
+                            </tr>
+                            <tr>
+                                <td>QQQ</td>
+                                <td>Invesco QQQ Trust</td>
+                                <td>10%</td>
+                                <td>$498.23</td>
+                                <td style="color: var(--success)">+2.1%</td>
+                            </tr>
+                            <tr>
+                                <td>BND</td>
+                                <td>Vanguard Total Bond</td>
+                                <td>20%</td>
+                                <td>$72.15</td>
+                                <td style="color: var(--danger)">-0.3%</td>
+                            </tr>
+                            <tr>
+                                <td>BNDX</td>
+                                <td>Vanguard International Bond</td>
+                                <td>10%</td>
+                                <td>$51.42</td>
+                                <td style="color: var(--danger)">-0.1%</td>
+                            </tr>
+                            <tr>
+                                <td>GLD</td>
+                                <td>SPDR Gold Shares</td>
+                                <td>15%</td>
+                                <td>$218.56</td>
+                                <td style="color: var(--success)">+0.5%</td>
+                            </tr>
+                            <tr>
+                                <td>VNQ</td>
+                                <td>Vanguard Real Estate</td>
+                                <td>10%</td>
+                                <td>$85.32</td>
+                                <td style="color: var(--success)">+0.3%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }, 300);
+        }
+        
+        
+        // ==================== Reading List ====================
+        const READING_DATA = [
+            {
+                title: "The Psychology of Money - Morgan Housel",
+                source: "Book · Chapter 5: Getting Wealthy vs. Staying Wealthy",
+                category: "investment",
+                url: "https://www.amazon.com/Psychology-Money-Timeless-lessons-happiness/dp/0857197681"
+            },
+            {
+                title: "AI Agents Will Reshape Software, Not Just Automate It",
+                source: "Ben Thompson · Stratechery",
+                category: "ai",
+                url: "https://stratechery.com/2025/ai-agents-will-reshape-software/"
+            },
+            {
+                title: "The Engineering Manager's Handbook",
+                source: "Will Larson · StaffEng",
+                category: "management",
+                url: "https://staffeng.com/guides/engineering-manager"
+            },
+            {
+                title: "All About Asset Allocation",
+                source: "Richard Ferri · Book",
+                category: "investment",
+                url: "https://www.amazon.com/About-Asset-Allocation-Second-Ferri/dp/0071702084"
+            },
+            {
+                title: "GPT-4's Impact on Software Development",
+                source: "Andrej Karpathy · Blog",
+                category: "ai",
+                url: "https://karpathy.ai"
+            },
+            {
+                title: "High Output Management",
+                source: "Andrew Grove · Book",
+                category: "management",
+                url: "https://www.amazon.com/High-Output-Management-Andrew-Grove/dp/0679762884"
+            }
+        ];
+        
+        function initReadingCategories() {
+            const buttons = document.querySelectorAll('.category-btn');
+            
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    buttons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const category = btn.getAttribute('data-category');
+                    renderReadingList(category);
+                });
+            });
+        }
+        
+        function renderReadingList(filter = 'all') {
+            const container = document.getElementById('reading-list');
+            
+            const filtered = filter === 'all' 
+                ? READING_DATA 
+                : READING_DATA.filter(item => item.category === filter);
+            
+            container.innerHTML = filtered.map(item => `
+                <a href="${item.url}" target="_blank" class="article">
+                    <div class="article-title">${item.title}</div>
+                    <div class="article-source">${item.source}</div>
+                </a>
+            `).join('');
+        }
+        
+        function loadReadingList() {
+            renderReadingList('all');
+        }
+        
+        
+        // ==================== Notes ====================
+        function loadNotes() {
+            const notes = localStorage.getItem('victor-notes');
+            return notes ? JSON.parse(notes) : [];
+        }
+        
+        function saveNotes(notes) {
+            localStorage.setItem('victor-notes', JSON.stringify(notes));
+        }
+        
+        function renderNotes() {
+            const container = document.getElementById('notes-container');
+            const notes = loadNotes();
+            
+            if (notes.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">No notes yet. Write your first note above.</p>';
+                return;
+            }
+            
+            container.innerHTML = notes.map((note, index) => `
+                <div class="note-item">
+                    <div>
+                        <div class="note-content">${escapeHtml(note.content)}</div>
+                        <div class="note-time">${new Date(note.timestamp).toLocaleString()}</div>
+                    </div>
+                    <button class="note-delete" onclick="deleteNote(${index})">Delete</button>
+                </div>
+            `).join('');
+        }
+        
+        function addNote() {
+            const input = document.getElementById('new-note');
+            const content = input.value.trim();
+            
+            if (!content) return;
+            
+            const notes = loadNotes();
+            notes.unshift({
+                content: content,
+                timestamp: Date.now()
+            });
+            
+            saveNotes(notes);
+            input.value = '';
+            renderNotes();
+        }
+        
+        function saveQuickNote() {
+            const input = document.getElementById('quick-note-input');
+            const content = input.value.trim();
+            
+            if (!content) return;
+            
+            const notes = loadNotes();
+            notes.unshift({
+                content: content,
+                timestamp: Date.now()
+            });
+            
+            saveNotes(notes);
+            input.value = '';
+            
+            // Show success feedback
+            const btn = document.querySelector('.quick-note .btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Saved!';
+            btn.style.background = 'var(--success)';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+            }, 1500);
+        }
+        
+        function deleteNote(index) {
+            const notes = loadNotes();
+            notes.splice(index, 1);
+            saveNotes(notes);
+            renderNotes();
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        
+        // ==================== Global Actions ====================
+        function refreshAll() {
+            const btn = document.getElementById('refresh-btn');
+            btn.classList.add('spinning');
+            btn.disabled = true;
+            
+            // Reload all data
+            loadAINews();
+            loadPortfolio();
+            
+            setTimeout(() => {
+                btn.classList.remove('spinning');
+                btn.disabled = false;
             }, 1000);
         }
+        
+        function exportData() {
+            const notes = loadNotes();
+            const data = {
+                notes: notes,
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `victor-dashboard-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        
+        // ==================== Initialization ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize clock
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+            // Initialize tabs
+            initTabs();
+            initReadingCategories();
+            
+            // Load initial data
+            loadAINews();
+            loadPortfolio();
+            loadReadingList();
+            renderNotes();
+        });
     </script>
 </body>
 </html>
