@@ -6,17 +6,19 @@
     <title>Victor's Intelligence | Personal Dashboard</title>
     <style>
         :root {
-            --bg: #0f0f11;
-            --card: #18181b;
-            --card-hover: #1f1f23;
-            --border: #27272a;
-            --text: #fafafa;
-            --text-muted: #a1a1aa;
-            --accent: #3b82f6;
-            --accent-soft: #1d4ed8;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --danger: #ef4444;
+            --bg: #fafbfc;
+            --card: #ffffff;
+            --card-hover: #f8f9fa;
+            --border: #e8eaed;
+            --text: #1a1a2e;
+            --text-muted: #6b7280;
+            --accent: #4f46e5;
+            --accent-soft: #4338ca;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+            --shadow-hover: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -90,17 +92,18 @@
             transition: all 0.2s;
             border: none;
             background: transparent;
+            font-weight: 500;
         }
         
         .nav-tab:hover {
             color: var(--text);
-            background: var(--card);
+            background: rgba(79, 70, 229, 0.08);
         }
         
         .nav-tab.active {
-            color: var(--text);
-            background: var(--card);
-            font-weight: 500;
+            color: var(--accent);
+            background: rgba(79, 70, 229, 0.12);
+            font-weight: 600;
         }
         
         /* Tab Content */
@@ -132,14 +135,15 @@
         .card {
             background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: 12px;
             padding: 24px;
             transition: all 0.2s ease;
+            box-shadow: var(--shadow);
         }
         
         .card:hover {
-            background: var(--card-hover);
-            border-color: #3f3f46;
+            box-shadow: var(--shadow-hover);
+            border-color: #d1d5db;
         }
         
         .card-header {
@@ -161,14 +165,18 @@
         }
         
         .card-badge {
-            font-size: 0.7rem;
-            padding: 2px 8px;
+            font-size: 0.75rem;
+            padding: 4px 10px;
             border-radius: 20px;
-            background: var(--accent-soft);
-            color: white;
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--accent);
+            font-weight: 500;
         }
         
-        .card-badge.new { background: var(--success); }
+        .card-badge.new { 
+            background: rgba(5, 150, 105, 0.1);
+            color: var(--success);
+        }
         
         /* Module: AI Brief */
         .ai-brief .news-item {
@@ -186,6 +194,7 @@
             margin-bottom: 6px;
             color: var(--text);
             cursor: pointer;
+            transition: color 0.2s;
         }
         
         .news-title:hover {
@@ -200,11 +209,12 @@
         }
         
         .news-tag {
-            padding: 2px 6px;
+            padding: 3px 8px;
             border-radius: 4px;
             font-size: 0.7rem;
-            background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--accent);
+            font-weight: 500;
         }
         
         /* Module: Portfolio */
@@ -249,8 +259,9 @@
         .reading-list .article {
             padding: 16px;
             margin-bottom: 12px;
-            background: rgba(255,255,255,0.02);
+            background: var(--card);
             border-radius: 8px;
+            border: 1px solid var(--border);
             border-left: 3px solid var(--accent);
             cursor: pointer;
             transition: all 0.2s;
@@ -260,7 +271,8 @@
         }
         
         .reading-list .article:hover {
-            background: rgba(255,255,255,0.04);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-hover);
         }
         
         .article-title {
@@ -277,7 +289,7 @@
         /* Module: Quick Note */
         .quick-note textarea {
             width: 100%;
-            background: var(--bg);
+            background: #f9fafb;
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 12px;
@@ -286,30 +298,39 @@
             font-size: 0.9rem;
             resize: vertical;
             min-height: 100px;
+            transition: all 0.2s;
         }
         
         .quick-note textarea:focus {
             outline: none;
             border-color: var(--accent);
+            background: var(--card);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
         
         .btn {
             margin-top: 12px;
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: 8px;
             border: none;
             background: var(--accent);
             color: white;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             cursor: pointer;
-            transition: opacity 0.2s;
+            transition: all 0.2s;
+            font-weight: 500;
         }
         
-        .btn:hover { opacity: 0.9; }
+        .btn:hover { 
+            background: var(--accent-soft);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-hover);
+        }
         
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
         }
         
         /* Module: Calendar/Tasks */
@@ -372,31 +393,32 @@
         .footer-links a {
             color: var(--text-muted);
             text-decoration: none;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             transition: color 0.2s;
         }
         
         .footer-links a:hover {
-            color: var(--text);
+            color: var(--accent);
         }
         
         .refresh-btn {
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 12px;
+            padding: 8px 16px;
             background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 8px;
             color: var(--text-muted);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.2s;
         }
         
         .refresh-btn:hover {
-            color: var(--text);
+            color: var(--accent);
             border-color: var(--accent);
+            background: rgba(79, 70, 229, 0.05);
         }
         
         .refresh-btn.spinning svg {
@@ -427,24 +449,30 @@
         }
         
         .note-item {
-            background: var(--bg);
+            background: var(--card);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+            box-shadow: var(--shadow);
+        }
+        
+        .note-item:hover {
+            border-color: #d1d5db;
         }
         
         .note-content {
             flex: 1;
             white-space: pre-wrap;
             word-break: break-word;
+            color: var(--text);
         }
         
         .note-time {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
             margin-top: 8px;
         }
@@ -456,6 +484,7 @@
             cursor: pointer;
             padding: 4px 8px;
             opacity: 0.6;
+            font-size: 0.85rem;
         }
         
         .note-delete:hover {
@@ -471,15 +500,17 @@
         .strategy-card {
             background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: 12px;
             padding: 24px;
             margin-bottom: 20px;
+            box-shadow: var(--shadow);
         }
         
         .strategy-card h2 {
             color: var(--text);
             margin-bottom: 16px;
             font-size: 1.2rem;
+            font-weight: 600;
         }
         
         .strategy-card p, .strategy-card li {
@@ -491,6 +522,10 @@
             padding-left: 24px;
         }
         
+        .strategy-card li {
+            margin-bottom: 12px;
+        }
+        
         /* Reading Page */
         .reading-categories {
             display: flex;
@@ -500,13 +535,20 @@
         }
         
         .category-btn {
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 20px;
             border: 1px solid var(--border);
             background: var(--card);
             color: var(--text-muted);
             cursor: pointer;
             font-size: 0.85rem;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .category-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
         
         .category-btn.active {
